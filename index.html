@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Fırsat Takibi</title>
+<style>
+:root{
+  --bg:#f5f6f8;--kart:#fff;--yazi:#1c2430;--soluk:#667085;--cizgi:#e4e7ec;
+  --yesil:#12805c;--yesil-zemin:#e7f6ef;--mavi:#1d5fc4;--mavi-zemin:#e8f0fd;
+  --altin:#9a6700;--altin-zemin:#fff4d6;--kirmizi:#b42318;--kirmizi-zemin:#fdecea;
+  --amz:#c45500;--wm:#0071ce;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#0f1318;--kart:#181e26;--yazi:#e6e9ee;--soluk:#98a2b3;--cizgi:#2a323d;
+  --yesil:#4ade9b;--yesil-zemin:#123326;--mavi:#7fb0ff;--mavi-zemin:#14284a;
+  --altin:#f3c35a;--altin-zemin:#3a2c0b;--kirmizi:#ff8a80;--kirmizi-zemin:#3a1512;--amz:#ffa24d;--wm:#5cb3ff}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--yazi);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.kap{max-width:980px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0 2px}
+.alt{color:var(--soluk);font-size:13px}
+.giris{max-width:360px;margin:18vh auto;padding:24px;background:var(--kart);border:1px solid var(--cizgi);border-radius:14px}
+.giris input{width:100%;padding:11px 12px;font-size:16px;border:1px solid var(--cizgi);border-radius:10px;background:var(--bg);color:var(--yazi);margin:12px 0}
+button{cursor:pointer;font:inherit}
+.btn{width:100%;padding:11px;border:0;border-radius:10px;background:var(--mavi);color:#fff;font-weight:600}
+.hata{color:var(--kirmizi);font-size:14px;min-height:20px}
+.sekmeler{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+.sekme{padding:8px 12px;border:1px solid var(--cizgi);border-radius:999px;background:var(--kart);color:var(--yazi)}
+.sekme.aktif{background:var(--yazi);color:var(--kart);border-color:var(--yazi)}
+.sekme b{font-weight:600;opacity:.7;margin-left:4px}
+select{padding:7px 10px;border-radius:8px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);font:inherit}
+.kart{background:var(--kart);border:1px solid var(--cizgi);border-radius:14px;margin:12px 0;overflow:hidden}
+.ust{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--cizgi)}
+.etiket{font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.3px}
+.ALIM{background:var(--yesil-zemin);color:var(--yesil)}
+.SATIS{background:var(--mavi-zemin);color:var(--mavi)}
+.RAKIPSIZ{background:var(--altin-zemin);color:var(--altin)}
+.ELENDI{background:var(--kirmizi-zemin);color:var(--kirmizi)}
+.kar{margin-left:auto;text-align:right}
+.kar .tutar{font-size:22px;font-weight:700;color:var(--yesil)}
+.kar .tutar.eksi{color:var(--kirmizi)}
+.kar small{display:block;color:var(--soluk);font-size:12px}
+.satir{display:grid;grid-template-columns:72px 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--cizgi)}
+.satir img,.bos{width:72px;height:72px;object-fit:contain;border-radius:8px;background:#fff;border:1px solid var(--cizgi)}
+.bos{display:flex;align-items:center;justify-content:center;color:#98a2b3;font-size:11px}
+.magaza{font-size:11px;font-weight:800;letter-spacing:.6px}
+.amz{color:var(--amz)}.wm{color:var(--wm)}
+.baslik{font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bilgi{color:var(--soluk);font-size:13px}
+.fiyat{text-align:right;white-space:nowrap}
+.fiyat .f{font-size:19px;font-weight:700}
+.fiyat a{display:inline-block;margin-top:4px;font-size:13px;color:var(--mavi);text-decoration:none;font-weight:600}
+.hesap{padding:10px 14px;font-size:13px;color:var(--soluk);display:flex;flex-wrap:wrap;gap:6px 16px}
+.hesap b{color:var(--yazi);font-weight:600}
+.not{padding:0 14px 12px;font-size:13px;color:var(--altin)}
+.neden{padding:0 14px 12px;font-size:13px;color:var(--kirmizi)}
+.bosmesaj{padding:28px;text-align:center;color:var(--soluk);background:var(--kart);border:1px dashed var(--cizgi);border-radius:14px}
+table{width:100%;border-collapse:collapse;background:var(--kart);border:1px solid var(--cizgi);border-radius:14px;overflow:hidden}
+td,th{padding:9px 10px;border-bottom:1px solid var(--cizgi);text-align:left;font-size:14px;vertical-align:middle}
+th{font-size:12px;color:var(--soluk);font-weight:600}
+td img{width:44px;height:44px;object-fit:contain;background:#fff;border-radius:6px}
+.tablo-kap{overflow-x:auto}
+.yok{color:var(--kirmizi);font-weight:600}.var{color:var(--yesil);font-weight:600}
+pre{white-space:pre-wrap;background:var(--kart);border:1px solid var(--cizgi);border-radius:14px;padding:14px;font-size:13px}
+@media (max-width:600px){
+  .satir{grid-template-columns:56px 1fr;}
+  .satir img,.bos{width:56px;height:56px}
+  .fiyat{grid-column:2;text-align:left}
+  .kar{margin-left:0;text-align:left;width:100%}
+}
+</style>
+</head>
+<body>
+<div id="giris" class="giris">
+  <h1>Fırsat Takibi</h1>
+  <div class="alt">Bu sayfa şifreli. Devam etmek için şifrenizi girin.</div>
+  <form id="form"><input id="sifre" type="password" autocomplete="current-password" placeholder="Şifre">
+  <button class="btn" type="submit">Aç</button></form>
+  <div id="hata" class="hata"></div>
+</div>
+<div id="uygulama" class="kap" hidden></div>
+<script>
+const $=s=>document.querySelector(s);
+const para=v=>v==null||v===''?'-':'$'+Number(v).toFixed(2);
+const yuzde=v=>v==null||v===''?'-':Math.round(Number(v)*100)+'%';
+const kac=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+let VERI=null;
+
+async function coz(sifre){
+  const p=await (await fetch('veri.json',{cache:'no-store'})).json();
+  const ham=await crypto.subtle.importKey('raw',new TextEncoder().encode(sifre),'PBKDF2',false,['deriveKey']);
+  const anahtar=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(p.tuz),iterations:p.tur,hash:'SHA-256'},ham,{name:'AES-GCM',length:256},false,['decrypt']);
+  const acik=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(p.iv)},anahtar,b64(p.veri));
+  return JSON.parse(new TextDecoder().decode(acik));
+}
+async function ac(sifre,sessiz){
+  try{VERI=await coz(sifre);}catch(e){if(!sessiz)$('#hata').textContent='Şifre yanlış.';return false;}
+  try{localStorage.setItem('fs_sifre',sifre)}catch(e){}
+  $('#giris').hidden=true;$('#uygulama').hidden=false;ciz();return true;
+}
+$('#form').addEventListener('submit',e=>{e.preventDefault();ac($('#sifre').value)});
+try{const k=localStorage.getItem('fs_sifre');if(k)ac(k,true)}catch(e){}
+
+let sekme='firsat',gun=0;
+function resim(u){return u?`<img src="${kac(u)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=bos>görsel yok</div>'">`:'<div class="bos">görsel yok</div>'}
+function tur(s){if(s.neden)return['ELENDI','ELENDİ'];if(s.tur==='ALIM')return['ALIM','ALIM'];return s.rakipsiz?['RAKIPSIZ','RAKİPSİZ SATIŞ']:['SATIS','SATIŞ']}
+
+function kart(s){
+  const [sinif,ad]=tur(s);const eksi=(s.net_kar??0)<0;
+  let h=`<div class="kart"><div class="ust"><span class="etiket ${sinif}">${ad}</span>`;
+  if(s.marka)h+=`<span class="bilgi">${kac(s.marka)}</span>`;
+  h+=`<div class="kar"><div class="tutar ${eksi?'eksi':''}">${s.net_kar==null?'-':(eksi?'':'+')+para(s.net_kar)}</div><small>net kâr · ROI ${yuzde(s.roi)} · marj ${yuzde(s.marj)}</small></div></div>`;
+  if(s.amazon_link){
+    h+=`<div class="satir">${resim(s.amazon_resim)}<div><div class="magaza amz">AMAZON · ALIŞ</div><div class="baslik">${kac(s.amazon_baslik||s.baslik)}</div>`
+     +`<div class="bilgi">${s.amazon_dusus?'Son dönemde %'+Math.round(s.amazon_dusus*100)+' düştü':''}</div></div>`
+     +`<div class="fiyat"><div class="f">${para(s.amazon_fiyat)}</div><a href="${kac(s.amazon_link)}" target="_blank" rel="noopener">Amazon'da aç →</a></div></div>`;
+  }
+  const wmBilgi=[`Walmart kendisi: ${s.wm_durum||'-'}${s.wm_fiyat?' ('+para(s.wm_fiyat)+')':''}`,`${s.satici_sayisi??'-'} satıcı ${s.trend?'('+kac(s.trend)+')':''}`];
+  if(s.kaybolan_7g)wmBilgi.push(`7 günde ${s.kaybolan_7g} satıcı çıktı`);
+  if(s.medyan_3p)wmBilgi.push(`3P medyan ${para(s.medyan_3p)}`);
+  h+=`<div class="satir">${resim(s.walmart_resim)}<div><div class="magaza wm">WALMART · SATIŞ</div><div class="baslik">${kac(s.baslik)}</div><div class="bilgi">${wmBilgi.join(' · ')}</div></div>`
+   +`<div class="fiyat"><div class="f">${para(s.satis)}</div><a href="${kac(s.walmart_link)}" target="_blank" rel="noopener">Walmart'ta aç →</a></div></div>`;
+  h+=`<div class="hesap"><span>Alış <b>${para(s.alis)}</b> (${kac(s.alis_kaynak)})</span><span>Satış <b>${para(s.satis)}</b> (${kac(s.satis_kaynak)})</span>`
+   +`<span>Komisyon <b>${para(s.komisyon)}</b></span><span>Vergi <b>${para(s.vergi)}</b></span><span>Kargo/prep <b>${para((s.depoya||0)+(s.gonderim||0))}</b></span>`
+   +(s.talep?`<span>Talep: ${kac(s.talep)}</span>`:'')+(s.upc?`<span>UPC ${kac(s.upc)}</span>`:'')+`</div>`;
+  if(s.risk)h+=`<div class="not">${kac(s.risk)}</div>`;
+  if(s.neden)h+=`<div class="neden">Elenme nedeni: ${kac(s.neden)}</div>`;
+  return h+'</div>';
+}
+
+function ciz(){
+  const V=VERI,g=V.gunler||[];const bugunF=(g[0]||{}).firsatlar||[];
+  let h=`<h1>Fırsat Takibi</h1><div class="alt">Son güncelleme: ${new Date(V.guncelleme).toLocaleString('tr-TR')} · Mod: ${kac(V.mod)} · Gönderim: ${kac(V.gonderim)}</div>`;
+  const S=[['firsat','Fırsatlar',bugunF.length],['elenen','Elenen Amazon ürünleri',(V.incelenen||[]).length],['izlenen','İzlenen Walmart ürünleri',(V.izlenen||[]).length],['ozet','Özet','']];
+  h+='<div class="sekmeler">'+S.map(([k,a,n])=>`<button class="sekme ${sekme===k?'aktif':''}" data-s="${k}">${a}${n!==''?'<b>'+n+'</b>':''}</button>`).join('')+'</div>';
+  if(sekme==='firsat'){
+    if(g.length>1)h+=`<div style="margin-bottom:6px">Gün: <select id="gun">${g.map((x,i)=>`<option value="${i}" ${i===gun?'selected':''}>${x.tarih} (${x.firsatlar.length})</option>`).join('')}</select></div>`;
+    const f=[...((g[gun]||{}).firsatlar||[])].sort((a,b)=>(b.net_kar||0)-(a.net_kar||0));
+    h+=f.length?f.map(kart).join(''):'<div class="bosmesaj">Bu gün kâr eşiğini geçen fırsat çıkmadı.<br>Kâr etmeyen adaylar "Elenen Amazon ürünleri" sekmesinde.</div>';
+  }else if(sekme==='elenen'){
+    const f=[...(V.incelenen||[])].sort((a,b)=>(b.net_kar||-999)-(a.net_kar||-999));
+    h+='<div class="alt">Amazon\'da fiyatı düşen ve Walmart\'ta bulunan, ama bir nedenle elenen ürünler (bugün).</div>';
+    h+=f.length?f.map(kart).join(''):'<div class="bosmesaj">Bugün Walmart\'ta eşleşen Amazon ürünü yok.</div>';
+  }else if(sekme==='izlenen'){
+    const f=V.izlenen||[];
+    h+='<div class="alt">Walmart\'ın kendi sattığı ürünler. Walmart\'ın stoğu biterse SATIŞ fırsatı olarak raporlanır.</div><div class="tablo-kap"><table><tr><th></th><th>Ürün</th><th>Walmart</th><th>En ucuz 3P</th><th>Satıcı</th><th>7g çıkan</th></tr>';
+    h+=f.map(x=>`<tr><td>${x.resim?`<img src="${kac(x.resim)}" loading="lazy" referrerpolicy="no-referrer">`:''}</td><td><a href="${kac(x.link)}" target="_blank" rel="noopener">${kac(x.baslik)}</a></td>`
+      +`<td class="${x.wm_stokta?'var':'yok'}">${x.wm_stokta?para(x.wm_fiyat):'STOK YOK'}</td><td>${para(x.en_dusuk_3p)}</td><td>${x.satici_sayisi??'-'} ${kac(x.trend)}</td><td>${x.kaybolan_7g||''}</td></tr>`).join('')+'</table></div>';
+  }else{
+    h+=`<pre>${kac((V.ozet||[]).join('\n'))}</pre>`;
+  }
+  $('#uygulama').innerHTML=h;
+  document.querySelectorAll('.sekme').forEach(b=>b.onclick=()=>{sekme=b.dataset.s;ciz()});
+  const sg=$('#gun');if(sg)sg.onchange=()=>{gun=+sg.value;ciz()};
+}
+</script>
+</body>
+</html>
