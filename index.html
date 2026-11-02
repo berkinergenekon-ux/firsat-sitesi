@@ -64,6 +64,11 @@ th{font-size:12px;color:var(--soluk);font-weight:600}
 td img{width:44px;height:44px;object-fit:contain;background:#fff;border-radius:6px}
 .tablo-kap{overflow-x:auto}
 .yok{color:var(--kirmizi);font-weight:600}.var{color:var(--yesil);font-weight:600}
+details.saticilar{padding:0 14px 12px}
+details.saticilar summary{cursor:pointer;color:var(--mavi);font-weight:600;font-size:14px;padding:6px 0}
+details.saticilar table{margin-top:6px;border-radius:10px}
+tr.wm1p td{background:var(--mavi-zemin)}
+.f.yok{color:var(--kirmizi)}
 pre{white-space:pre-wrap;background:var(--kart);border:1px solid var(--cizgi);border-radius:14px;padding:14px;font-size:13px}
 @media (max-width:600px){
   .satir{grid-template-columns:56px 1fr;}
@@ -109,6 +114,14 @@ let sekme='firsat',gun=0;
 function resim(u){return u?`<img src="${kac(u)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=bos>görsel yok</div>'">`:'<div class="bos">görsel yok</div>'}
 function tur(s){if(s.neden)return['ELENDI','ELENDİ'];if(s.tur==='ALIM')return['ALIM','ALIM'];return s.rakipsiz?['RAKIPSIZ','RAKİPSİZ SATIŞ']:['SATIS','SATIŞ']}
 
+function saticiListesi(L){
+  if(!L||!L.length)return'';
+  return `<details class="saticilar"><summary>Walmart'taki satıcılar ve fiyatları (${L.length})</summary><table>`
+    +`<tr><th>Satıcı</th><th>Fiyat</th><th>Durum</th><th>Buy box (son ${L[0].buybox_gun||0} gün)</th></tr>`
+    +L.map(t=>`<tr${t.walmart_mi?' class="wm1p"':''}><td>${t.walmart_mi?'🏬 <b>Walmart (kendisi)</b>':kac(t.satici)}${t.buybox_bugun?' 🏆':''}</td><td><b>${para(t.fiyat)}</b></td><td class="${t.stokta?'var':'yok'}">${t.stokta?'stokta':'stok yok'}</td><td>${t.buybox_pay==null?'-':Math.round(t.buybox_pay*100)+'%'}</td></tr>`).join('')
+    +'</table><div class="bilgi" style="margin-top:4px">🏆 = bugün buy box onda. Günde bir kez bakıldığı için yüzde tahminidir; 1–2 haftada anlamlı olur.</div></details>';
+}
+
 function kart(s){
   const [sinif,ad]=tur(s);const eksi=(s.net_kar??0)<0;
   let h=`<div class="kart"><div class="ust"><span class="etiket ${sinif}">${ad}</span>`;
@@ -124,9 +137,16 @@ function kart(s){
   if(s.medyan_3p)wmBilgi.push(`3P medyan ${para(s.medyan_3p)}`);
   h+=`<div class="satir">${resim(s.walmart_resim)}<div><div class="magaza wm">WALMART · SATIŞ</div><div class="baslik">${kac(s.baslik)}</div><div class="bilgi">${wmBilgi.join(' · ')}</div></div>`
    +`<div class="fiyat"><div class="f">${para(s.satis)}</div><a href="${kac(s.walmart_link)}" target="_blank" rel="noopener">Walmart'ta aç →</a></div></div>`;
+  const modAd=m=>m==='wfs'?'WFS':'Kendi depo';
+  if(s.net_kar_depo!=null||s.net_kar_wfs!=null){
+    h+=`<div class="hesap"><span>📦 Kendi depodan: <b>${para(s.net_kar_depo)}</b> kâr (ROI ${yuzde(s.roi_depo)})</span>`
+     +(s.net_kar_wfs!=null?`<span>🏬 WFS ile: <b>${para(s.net_kar_wfs)}</b> kâr (ROI ${yuzde(s.roi_wfs)})</span>`:'')
+     +(s.mod?`<span>Daha kârlı: <b>${modAd(s.mod)}</b></span>`:'')+`</div>`;
+  }
   h+=`<div class="hesap"><span>Alış <b>${para(s.alis)}</b> (${kac(s.alis_kaynak)})</span><span>Satış <b>${para(s.satis)}</b> (${kac(s.satis_kaynak)})</span>`
    +`<span>Komisyon <b>${para(s.komisyon)}</b></span><span>Vergi <b>${para(s.vergi)}</b></span><span>Kargo/prep <b>${para((s.depoya||0)+(s.gonderim||0))}</b></span>`
    +(s.talep?`<span>Talep: ${kac(s.talep)}</span>`:'')+(s.upc?`<span>UPC ${kac(s.upc)}</span>`:'')+`</div>`;
+  h+=saticiListesi(s.saticilar);
   if(s.risk)h+=`<div class="not">${kac(s.risk)}</div>`;
   if(s.neden)h+=`<div class="neden">Elenme nedeni: ${kac(s.neden)}</div>`;
   return h+'</div>';
@@ -147,9 +167,18 @@ function ciz(){
     h+=f.length?f.map(kart).join(''):'<div class="bosmesaj">Bugün Walmart\'ta eşleşen Amazon ürünü yok.</div>';
   }else if(sekme==='izlenen'){
     const f=V.izlenen||[];
-    h+='<div class="alt">Walmart\'ın kendi sattığı ürünler. Walmart\'ın stoğu biterse SATIŞ fırsatı olarak raporlanır.</div><div class="tablo-kap"><table><tr><th></th><th>Ürün</th><th>Walmart</th><th>En ucuz 3P</th><th>Satıcı</th><th>7g çıkan</th></tr>';
-    h+=f.map(x=>`<tr><td>${x.resim?`<img src="${kac(x.resim)}" loading="lazy" referrerpolicy="no-referrer">`:''}</td><td><a href="${kac(x.link)}" target="_blank" rel="noopener">${kac(x.baslik)}</a></td>`
-      +`<td class="${x.wm_stokta?'var':'yok'}">${x.wm_stokta?para(x.wm_fiyat):'STOK YOK'}</td><td>${para(x.en_dusuk_3p)}</td><td>${x.satici_sayisi??'-'} ${kac(x.trend)}</td><td>${x.kaybolan_7g||''}</td></tr>`).join('')+'</table></div>';
+    h+='<div class="alt">Walmart\'ın kendi sattığı ürünler. Walmart\'ın stoğu biterse SATIŞ fırsatı olarak raporlanır. Satıcıları görmek için ürüne tıklayın.</div>';
+    h+=f.map(x=>{
+      const dis=(x.saticilar||[]).filter(t=>!t.walmart_mi).length;
+      return `<div class="kart"><div class="satir">${resim(x.resim)}<div><div class="magaza wm">WALMART</div>`
+      +`<div class="baslik"><a href="${kac(x.link)}" target="_blank" rel="noopener" style="color:inherit">${kac(x.baslik)}</a></div>`
+      +`<div class="bilgi">Toplam <b>${x.satici_sayisi??'-'} satıcı</b> (Walmart${x.wm_stokta?'':' stokta değil'} + ${dis} diğer satıcı)${x.trend?' · trend '+kac(x.trend):''}${x.kaybolan_7g?' · 7 günde '+x.kaybolan_7g+' satıcı çıktı':''}</div></div>`
+      +(x.stok_mesaj?`<div class="not" style="padding:4px 0 0">⚠️ Stok azalıyor: ${kac(x.stok_mesaj)}</div>`:'')
+      +(x.siparis_limiti?`<div class="bilgi">Sipariş sınırı: ${kac(x.siparis_limiti)} adet</div>`:'')
+      +`</div><div class="fiyat"><div class="bilgi">Walmart'ın fiyatı</div><div class="f ${x.wm_stokta?'':'yok'}">${x.wm_stokta?para(x.wm_fiyat):'STOK YOK'}</div>`
+      +`<div class="bilgi">Diğer satıcılarda en ucuz: <b>${para(x.en_dusuk_3p)}</b></div></div></div>`
+      +saticiListesi(x.saticilar)+'</div>';
+    }).join('')||'<div class="bosmesaj">Henüz veri yok.</div>';
   }else{
     h+=`<pre>${kac((V.ozet||[]).join('\n'))}</pre>`;
   }
