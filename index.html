@@ -122,6 +122,17 @@ function saticiListesi(L){
     +'</table><div class="bilgi" style="margin-top:4px">🏆 = bugün buy box onda. Günde bir kez bakıldığı için yüzde tahminidir; 1–2 haftada anlamlı olur.</div></details>';
 }
 
+function yorumBilgi(x){
+  if(x.yorum==null&&x.yorum_30g==null)return '';
+  let t=x.yorum!=null?`💬 <b>${x.yorum}</b> yorum`+(x.puan?` · ★${Number(x.puan).toFixed(1)}`:''):'💬';
+  if(x.yorum_30g!=null){
+    const a=x.yorum_sinir?'+':'';
+    if(x.zayif_talep)t+=` · <b style="color:var(--kirmizi,#c0392b)">⚠️ zayıf talep: son yorum ${x.son_yorum||'60+ gün önce'}</b>`;
+    else t+=` · son yorum <b>${x.son_yorum}</b> · son 30 gün <b>${x.yorum_30g}${a}</b> · son 60 gün <b>${x.yorum_60g}${a}</b>`
+      +(x.satiyor?` · <b style="color:var(--yesil,#1a7f37)">🔥 satıyor ≈${x.tahmini_aylik_satis}${a} satış/ay*</b>`:'');
+  }
+  return `<div class="bilgi" title="*Kaba tahmin: 1 yorum ≈ 100 satış">${t}</div>`;
+}
 function kart(s){
   const [sinif,ad]=tur(s);const eksi=(s.net_kar??0)<0;
   let h=`<div class="kart"><div class="ust"><span class="etiket ${sinif}">${ad}</span>`;
@@ -135,7 +146,7 @@ function kart(s){
   const wmBilgi=[`Walmart kendisi: ${s.wm_durum||'-'}${s.wm_fiyat?' ('+para(s.wm_fiyat)+')':''}`,`${s.satici_sayisi??'-'} satıcı ${s.trend?'('+kac(s.trend)+')':''}`];
   if(s.kaybolan_7g)wmBilgi.push(`7 günde ${s.kaybolan_7g} satıcı çıktı`);
   if(s.medyan_3p)wmBilgi.push(`3P medyan ${para(s.medyan_3p)}`);
-  h+=`<div class="satir">${resim(s.walmart_resim)}<div><div class="magaza wm">WALMART · SATIŞ</div><div class="baslik">${kac(s.baslik)}</div><div class="bilgi">${wmBilgi.join(' · ')}</div></div>`
+  h+=`<div class="satir">${resim(s.walmart_resim)}<div><div class="magaza wm">WALMART · SATIŞ</div><div class="baslik">${kac(s.baslik)}</div><div class="bilgi">${wmBilgi.join(' · ')}</div>${yorumBilgi(s)}</div>`
    +`<div class="fiyat"><div class="f">${para(s.satis)}</div><a href="${kac(s.walmart_link)}" target="_blank" rel="noopener">Walmart'ta aç →</a></div></div>`;
   const modAd=m=>m==='wfs'?'WFS':'Kendi depo';
   if(s.net_kar_depo!=null||s.net_kar_wfs!=null){
@@ -166,13 +177,13 @@ function ciz(){
     h+='<div class="alt">Amazon\'da fiyatı düşen ve Walmart\'ta bulunan, ama bir nedenle elenen ürünler (bugün).</div>';
     h+=f.length?f.map(kart).join(''):'<div class="bosmesaj">Bugün Walmart\'ta eşleşen Amazon ürünü yok.</div>';
   }else if(sekme==='izlenen'){
-    const f=V.izlenen||[];
-    h+='<div class="alt">Walmart\'ın kendi sattığı ürünler. Walmart\'ın stoğu biterse SATIŞ fırsatı olarak raporlanır. Satıcıları görmek için ürüne tıklayın.</div>';
+    const f=[...(V.izlenen||[])].sort((a,b)=>(b.yorum_30g||0)-(a.yorum_30g||0));
+    h+='<div class="alt">Walmart\'ın kendi sattığı ürünler. Walmart\'ın stoğu biterse SATIŞ fırsatı olarak raporlanır. Son 30 günde en çok yorum alan (en çok satan) ürünler üstte. *1 yorum ≈ 100 satış (kaba tahmin).</div>';
     h+=f.map(x=>{
       const dis=(x.saticilar||[]).filter(t=>!t.walmart_mi).length;
       return `<div class="kart"><div class="satir">${resim(x.resim)}<div><div class="magaza wm">WALMART</div>`
       +`<div class="baslik"><a href="${kac(x.link)}" target="_blank" rel="noopener" style="color:inherit">${kac(x.baslik)}</a></div>`
-      +`<div class="bilgi">Toplam <b>${x.satici_sayisi??'-'} satıcı</b> (Walmart${x.wm_stokta?'':' stokta değil'} + ${dis} diğer satıcı)${x.trend?' · trend '+kac(x.trend):''}${x.kaybolan_7g?' · 7 günde '+x.kaybolan_7g+' satıcı çıktı':''}</div></div>`
+      +`<div class="bilgi">Toplam <b>${x.satici_sayisi??'-'} satıcı</b> (Walmart${x.wm_stokta?'':' stokta değil'} + ${dis} diğer satıcı)${x.trend?' · trend '+kac(x.trend):''}${x.kaybolan_7g?' · 7 günde '+x.kaybolan_7g+' satıcı çıktı':''}</div>${yorumBilgi(x)}</div>`
       +(x.stok_mesaj?`<div class="not" style="padding:4px 0 0">⚠️ Stok azalıyor: ${kac(x.stok_mesaj)}</div>`:'')
       +(x.siparis_limiti?`<div class="bilgi">Sipariş sınırı: ${kac(x.siparis_limiti)} adet</div>`:'')
       +`</div><div class="fiyat"><div class="bilgi">Walmart'ın fiyatı</div><div class="f ${x.wm_stokta?'':'yok'}">${x.wm_stokta?para(x.wm_fiyat):'STOK YOK'}</div>`
