@@ -112,7 +112,7 @@ try{const k=localStorage.getItem('fs_sifre');if(k)ac(k,true)}catch(e){}
 
 let sekme='firsat',gun=0;
 function resim(u){return u?`<img src="${kac(u)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=bos>görsel yok</div>'">`:'<div class="bos">görsel yok</div>'}
-function tur(s){if(s.neden)return['ELENDI','ELENDİ'];if(s.tur==='ALIM')return['ALIM','ALIM'];return s.rakipsiz?['RAKIPSIZ','RAKİPSİZ SATIŞ']:['SATIS','SATIŞ']}
+function tur(s){if(s.neden)return['ELENDI','ELENDİ'];if(s.tur==='ALIM')return['ALIM',s.liste==='izleme'?'ALIM (WALMART LİSTESİ)':'ALIM'];if(s.tur==='STOK')return['RAKIPSIZ','STOK TOPLA'];return s.rakipsiz?['RAKIPSIZ','RAKİPSİZ SATIŞ']:['SATIS','SATIŞ']}
 
 function saticiListesi(L){
   if(!L||!L.length)return'';
