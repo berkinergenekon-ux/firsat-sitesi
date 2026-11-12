@@ -154,6 +154,10 @@ function kart(s){
      +(s.net_kar_wfs!=null?`<span>🏬 WFS ile: <b>${para(s.net_kar_wfs)}</b> kâr (ROI ${yuzde(s.roi_wfs)})</span>`:'')
      +(s.mod?`<span>Daha kârlı: <b>${modAd(s.mod)}</b></span>`:'')+`</div>`;
   }
+  if(s.plan){
+    h+=`<div class="hesap"><span>${s.plan==='DİREKT WFS'?'🚀':'🧪'} <b>${kac(s.plan)}</b>: ${kac(String(s.plan_adet||''))} adet`
+     +(s.plan==='DENE'?' (kendi depodan, satarsa WFS)':'')+`</span><span>${kac(s.plan_neden||'')}</span></div>`;
+  }
   h+=`<div class="hesap"><span>Alış <b>${para(s.alis)}</b> (${kac(s.alis_kaynak)})</span><span>Satış <b>${para(s.satis)}</b> (${kac(s.satis_kaynak)})</span>`
    +`<span>Komisyon <b>${para(s.komisyon)}</b></span><span>Vergi <b>${para(s.vergi)}</b></span><span>Kargo/prep <b>${para((s.depoya||0)+(s.gonderim||0))}</b></span>`
    +(s.talep?`<span>Talep: ${kac(s.talep)}</span>`:'')+(s.upc?`<span>UPC ${kac(s.upc)}</span>`:'')+`</div>`;
