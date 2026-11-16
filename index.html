@@ -69,6 +69,22 @@ details.saticilar summary{cursor:pointer;color:var(--mavi);font-weight:600;font-
 details.saticilar table{margin-top:6px;border-radius:10px}
 tr.wm1p td{background:var(--mavi-zemin)}
 .f.yok{color:var(--kirmizi)}
+.mtablo td{vertical-align:top}
+.mtablo .resimler{display:flex;gap:6px}
+.mtablo .resimler img,.mtablo .resimler .bos{width:56px;height:56px;object-fit:contain;background:#fff;border-radius:8px;border:1px solid var(--cizgi)}
+.mtablo .ad{min-width:180px;max-width:260px}
+.mtablo .ad a{color:inherit}
+.mtablo .kod{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:var(--soluk)}
+.mtablo .sayi{white-space:nowrap}
+.mtablo .kartutar{font-weight:700;color:var(--yesil)}.mtablo .kartutar.eksi{color:var(--kirmizi)}
+.mtablo tr.pasif td{opacity:.6}
+.durum{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;background:var(--yesil-zemin);color:var(--yesil)}
+.durum.pasif{background:var(--kirmizi-zemin);color:var(--kirmizi)}
+.uyari{color:var(--altin);font-size:12px;margin-top:4px}
+h2{font-size:16px;margin:22px 0 8px}
+.mesaj{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;padding:10px 14px;margin:8px 0;white-space:pre-wrap;font-size:14px;overflow-wrap:anywhere}
+.mesaj .zaman{display:block;color:var(--soluk);font-size:12px;margin-bottom:4px}
+.mesaj a{color:var(--mavi)}
 pre{white-space:pre-wrap;background:var(--kart);border:1px solid var(--cizgi);border-radius:14px;padding:14px;font-size:13px}
 @media (max-width:600px){
   .satir{grid-template-columns:56px 1fr;}
@@ -110,7 +126,38 @@ async function ac(sifre,sessiz){
 $('#form').addEventListener('submit',e=>{e.preventDefault();ac($('#sifre').value)});
 try{const k=localStorage.getItem('fs_sifre');if(k)ac(k,true)}catch(e){}
 
-let sekme='firsat',gun=0;
+let sekme='magazam',gun=0;
+const link=(u,t)=>u?`<a href="${kac(u)}" target="_blank" rel="noopener">${kac(t)}</a>`:kac(t);
+function magazaSatir(m){
+  const y=m.yorum||{};
+  const alis=m.amazon_simdi??m.alis, kar=m.kar_simdi??m.net_kar, roi=m.roi_simdi??m.roi;
+  const uyari=[];
+  if(m.durum==='ACIK'&&m.kar_simdi!=null&&m.kar_simdi<=0)uyari.push('Amazon pahalandı, yeniden alım kârsız');
+  if(m.wm_en_dusuk&&m.satis&&m.wm_en_dusuk<m.satis*0.97)uyari.push('Walmart\'ta daha ucuz satıcı: '+para(m.wm_en_dusuk));
+  if(m.durum==='BITTI'&&m.son_fiyat!=null)uyari.push('Amazon fiyatı '+para(m.son_fiyat)+' oldu');
+  const talep=[y.yorum!=null?`${y.yorum} yorum${y.puan?' · ★'+Number(y.puan).toFixed(1):''}`:'',
+    y.yorum_30g!=null?`son 30 gün: ${y.yorum_30g}${y.yorum_sinir?'+':''} yorum`:'',
+    y.tahmini_aylik_satis?`~${y.tahmini_aylik_satis} satış/ay*`:'',
+    y.zayif_talep?'<span class="yok">zayıf talep</span>':'',
+    m.amazon_aylik_satis?`Amazon ~${m.amazon_aylik_satis}/ay`:''].filter(Boolean).join('<br>')||kac(m.talep||'-');
+  const plan=m.plan==='DİREKT WFS'?'🚀 Direkt WFS':m.plan?'🧪 Dene':'-';
+  return `<tr class="${m.aktif?'':'pasif'}">`
+   +`<td><span class="durum ${m.aktif?'':'pasif'}">${kac(m.durum_etiket)}</span><div class="kod">${kac(m.sku)}</div>`
+   +`<div class="bilgi">Kontrol: ${kac(m.son_kontrol||'-')}</div>${uyari.map(u=>`<div class="uyari">⚠️ ${kac(u)}</div>`).join('')}</td>`
+   +`<td><div class="resimler">${resim(m.walmart_resim)}${resim(m.amazon_resim)}</div></td>`
+   +`<td class="ad"><div class="magaza wm">WALMART</div><div class="baslik">${link(m.walmart_link,m.walmart_baslik||m.baslik)}</div><div class="kod">UPC ${kac(m.upc)}</div></td>`
+   +`<td class="ad"><div class="magaza amz">AMAZON</div><div class="baslik">${link(m.amazon_link,m.amazon_baslik||'-')}</div><div class="kod">ASIN ${kac(m.asin||'-')}</div></td>`
+   +`<td class="sayi">Alış <b>${para(alis)}</b>${m.amazon_simdi!=null&&m.alis!=null&&Math.abs(m.amazon_simdi-m.alis)>0.01?`<div class="bilgi">eklerken ${para(m.alis)}</div>`:''}<br>Satış <b>${para(m.satis)}</b>`
+   +`${m.wm_en_dusuk!=null?`<div class="bilgi">WM en ucuz: ${para(m.wm_en_dusuk)} · ${m.wm_satici??'-'} satıcı</div>`:''}</td>`
+   +`<td class="sayi"><span class="kartutar ${(kar??0)<0?'eksi':''}">${para(kar)}</span><div class="bilgi">ROI ${yuzde(roi)}</div>`
+   +`${m.net_kar_depo!=null?`<div class="bilgi">depo ${para(m.net_kar_depo)}${m.net_kar_wfs!=null?' · WFS '+para(m.net_kar_wfs):''}</div>`:''}</td>`
+   +`<td class="bilgi">${talep}</td>`
+   +`<td class="bilgi">${plan}${m.plan_adet?' · '+kac(m.plan_adet)+' adet':''}${m.plan_neden?'<br>'+kac(m.plan_neden):''}${m.satis_adet?'<br><b>Satılan: '+kac(m.satis_adet)+'</b>':''}</td></tr>`;
+}
+function magazaTablo(L){
+  return `<div class="tablo-kap"><table class="mtablo"><tr><th>Durum</th><th>Resim</th><th>Walmart ürünü</th><th>Amazon ürünü</th><th>Fiyat</th><th>Net kâr</th><th>Walmart talep</th><th>Plan</th></tr>${L.map(magazaSatir).join('')}</table></div>`;
+}
+function linkle(t){return kac(t).replace(/https?:\/\/[^\s<]+/g,u=>`<a href="${u}" target="_blank" rel="noopener">${u}</a>`)}
 function resim(u){return u?`<img src="${kac(u)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=bos>görsel yok</div>'">`:'<div class="bos">görsel yok</div>'}
 function tur(s){if(s.neden)return['ELENDI','ELENDİ'];if(s.tur==='ALIM')return['ALIM',s.liste==='izleme'?'ALIM (WALMART LİSTESİ)':'ALIM'];if(s.tur==='STOK')return['RAKIPSIZ','STOK TOPLA'];return s.rakipsiz?['RAKIPSIZ','RAKİPSİZ SATIŞ']:['SATIS','SATIŞ']}
 
@@ -170,9 +217,22 @@ function kart(s){
 function ciz(){
   const V=VERI,g=V.gunler||[];const bugunF=(g[0]||{}).firsatlar||[];
   let h=`<h1>Fırsat Takibi</h1><div class="alt">Son güncelleme: ${new Date(V.guncelleme).toLocaleString('tr-TR')} · Mod: ${kac(V.mod)} · Gönderim: ${kac(V.gonderim)}</div>`;
-  const S=[['firsat','Fırsatlar',bugunF.length],['elenen','Elenen Amazon ürünleri',(V.incelenen||[]).length],['izlenen','İzlenen Walmart ürünleri',(V.izlenen||[]).length],['ozet','Özet','']];
+  const M=V.magazam||[],MA=M.filter(m=>m.aktif),MP=M.filter(m=>!m.aktif);
+  const S=[['magazam','Mağazam',MA.length],['mesajlar','Mesajlar',(V.mesajlar||[]).length],['firsat','Fırsatlar',bugunF.length],['elenen','Elenen Amazon ürünleri',(V.incelenen||[]).length],['izlenen','İzlenen Walmart ürünleri',(V.izlenen||[]).length],['ozet','Özet','']];
   h+='<div class="sekmeler">'+S.map(([k,a,n])=>`<button class="sekme ${sekme===k?'aktif':''}" data-s="${k}">${a}${n!==''?'<b>'+n+'</b>':''}</button>`).join('')+'</div>';
-  if(sekme==='firsat'){
+  if(sekme==='magazam'){
+    h+='<div class="alt">Walmart mağazana eklenen ürünler. Her sabah Amazon fiyatı ve Walmart satıcıları yeniden kontrol edilir; fırsatı biten ürün otomatik olarak aşağıya "Bitenler"e iner. Alış = Amazon\'daki güncel fiyat. *1 yorum ≈ 100 satış (kaba tahmin).</div>';
+    h+=MA.length?magazaTablo(MA):'<div class="bosmesaj">Şu an alım bekleyen veya satışta olan ürün yok.</div>';
+    if(MP.length)h+=`<h2>Bitenler / kaldırılanlar (${MP.length})</h2>`+magazaTablo(MP);
+  }else if(sekme==='mesajlar'){
+    const L=V.mesajlar||[];
+    h+='<div class="alt">Telegram\'a gönderilen mesajların aynısı, en yeni üstte.</div>';
+    let gunS='';
+    h+=L.map(x=>{const t=new Date(x.zaman),g=t.toLocaleDateString('tr-TR',{day:'numeric',month:'long',weekday:'long'});
+      const bas=g!==gunS?`<h2>${kac(g)}</h2>`:'';gunS=g;
+      return bas+`<div class="mesaj"><span class="zaman">${t.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</span>${linkle(x.metin)}</div>`}).join('')
+      ||'<div class="bosmesaj">Henüz kayıtlı mesaj yok. Bundan sonra gelen mesajlar burada birikecek.</div>';
+  }else if(sekme==='firsat'){
     if(g.length>1)h+=`<div style="margin-bottom:6px">Gün: <select id="gun">${g.map((x,i)=>`<option value="${i}" ${i===gun?'selected':''}>${x.tarih} (${x.firsatlar.length})</option>`).join('')}</select></div>`;
     const f=[...((g[gun]||{}).firsatlar||[])].sort((a,b)=>(b.net_kar||0)-(a.net_kar||0));
     h+=f.length?f.map(kart).join(''):'<div class="bosmesaj">Bu gün kâr eşiğini geçen fırsat çıkmadı.<br>Kâr etmeyen adaylar "Elenen Amazon ürünleri" sekmesinde.</div>';
